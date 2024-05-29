@@ -5,6 +5,7 @@ using SqlServerDatabasePopulator.Models;
 namespace SqlServerDatabasePopulator.Querys;
 public static class Querys
 {
+    const string pattern =  @"\/(\d+)\/";
     public static void QueryInsertPlanet(List<Planet> planets, SqlConnection connection)
     {
         var query = @"SET IDENTITY_INSERT dbo.Planets ON;
@@ -101,7 +102,7 @@ public static class Querys
                 @edited);
                 
                 SET IDENTITY_INSERT dbo.Characters OFF;";
-        string pattern = @"\/(\d+)\/";
+        
         using var command = new SqlCommand(query, connection);
         connection.Open();
         foreach (var person in people)
@@ -143,7 +144,7 @@ public static class Querys
                 @edited);
                 
                 SET IDENTITY_INSERT dbo.Species OFF;";
-        string pattern = @"\/(\d+)\/";
+        
         using var command = new SqlCommand(query, connection);
         connection.Open();
         foreach (var specie in species)
@@ -211,7 +212,6 @@ public static class Querys
         };
         connection.Close();
     }
-
     public static void QueryInsertStarships(List<Starship> starships, SqlConnection connection)
     {
         var query = @"SET IDENTITY_INSERT dbo.Starships ON;
@@ -240,26 +240,197 @@ public static class Querys
         connection.Open();
         foreach (var starship in starships)
         {
-            command.Parameters.Add(new SqlParameter("@id", starship.id));            
-            command.Parameters.Add(new SqlParameter("@name", starship.name));            
-            command.Parameters.Add(new SqlParameter("@model", starship.model));            
-            command.Parameters.Add(new SqlParameter("@manufacturer", starship.manufacturer));            
-            command.Parameters.Add(new SqlParameter("@costInCredits", starship.cost_in_credits));            
-            command.Parameters.Add(new SqlParameter("@lenght", starship.length));            
-            command.Parameters.Add(new SqlParameter("@maxAtmospheringSpeed", starship.max_atmosphering_speed));            
-            command.Parameters.Add(new SqlParameter("@crew", starship.crew));            
-            command.Parameters.Add(new SqlParameter("@passengers", starship.passengers));            
-            command.Parameters.Add(new SqlParameter("@cargoCapacity", starship.cargo_capacity));            
-            command.Parameters.Add(new SqlParameter("@Consumables", starship.consumables));            
-            command.Parameters.Add(new SqlParameter("@hyperdriveRating", starship.hyperdrive_rating));            
-            command.Parameters.Add(new SqlParameter("@mglt", starship.MGLT));            
-            command.Parameters.Add(new SqlParameter("@starshipClass", starship.starship_class));                       
-            command.Parameters.Add(new SqlParameter("@created", starship.created));            
-            command.Parameters.Add(new SqlParameter("@edited", starship.edited));                        
+            command.Parameters.Add(new SqlParameter("@id", starship.id));
+            command.Parameters.Add(new SqlParameter("@name", starship.name));
+            command.Parameters.Add(new SqlParameter("@model", starship.model));
+            command.Parameters.Add(new SqlParameter("@manufacturer", starship.manufacturer));
+            command.Parameters.Add(new SqlParameter("@costInCredits", starship.cost_in_credits));
+            command.Parameters.Add(new SqlParameter("@lenght", starship.length));
+            command.Parameters.Add(new SqlParameter("@maxAtmospheringSpeed", starship.max_atmosphering_speed));
+            command.Parameters.Add(new SqlParameter("@crew", starship.crew));
+            command.Parameters.Add(new SqlParameter("@passengers", starship.passengers));
+            command.Parameters.Add(new SqlParameter("@cargoCapacity", starship.cargo_capacity));
+            command.Parameters.Add(new SqlParameter("@Consumables", starship.consumables));
+            command.Parameters.Add(new SqlParameter("@hyperdriveRating", starship.hyperdrive_rating));
+            command.Parameters.Add(new SqlParameter("@mglt", starship.MGLT));
+            command.Parameters.Add(new SqlParameter("@starshipClass", starship.starship_class));
+            command.Parameters.Add(new SqlParameter("@created", starship.created));
+            command.Parameters.Add(new SqlParameter("@edited", starship.edited));
             command.ExecuteNonQuery();
             command.Parameters.Clear();
         };
         connection.Close();
     }
+    public static void QueyInsertCharacterStarships(List<People> people, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.CharacterStarships 
+                VALUES(@idCharacter,
+                @idStarship);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var person in people)
+        {
+            foreach (string starship in person.starships)
+            {
+                Match match = Regex.Match(starship, pattern);
+                command.Parameters.Add(new SqlParameter("@idCharacter", person.id));
+                command.Parameters.Add(new SqlParameter("@idStarship", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }            
+        };
+        connection.Close();
+    }
+    public static void QueyInsertCharacterVehicles(List<People> people, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.CharacterVehicles 
+                VALUES(@idCharacter,
+                @idVehicle);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var person in people)
+        {
+            foreach (string vehicle in person.vehicles)
+            {
+                Match match = Regex.Match(vehicle, pattern);
+                command.Parameters.Add(new SqlParameter("@idCharacter", person.id));
+                command.Parameters.Add(new SqlParameter("@idVehicle", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+
+    public static void QueyInsertFilmCharaters(List<Film> films, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.FilmCharacters 
+                VALUES(@idFilm,
+                @idCharacter);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var film in films)
+        {
+            foreach (string character in film.characters)
+            {
+                Match match = Regex.Match(character, pattern);
+                command.Parameters.Add(new SqlParameter("@idFilm", film.id));
+                command.Parameters.Add(new SqlParameter("@idCharacter", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+    public static void QueyInsertFilmPlanets(List<Film> films, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.FilmPlanets 
+                VALUES(@idFilm,
+                @idPlanet);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var film in films)
+        {
+            foreach (string planet in film.planets)
+            {
+                Match match = Regex.Match(planet, pattern);
+                command.Parameters.Add(new SqlParameter("@idFilm", film.id));
+                command.Parameters.Add(new SqlParameter("@idPlanet", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+    public static void QueyInsertFilmSpecies(List<Film> films, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.FilmSpecies 
+                VALUES(@idFilm,
+                @idSpecies);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var film in films)
+        {
+            foreach (string specie in film.species)
+            {
+                Match match = Regex.Match(specie, pattern);
+                command.Parameters.Add(new SqlParameter("@idFilm", film.id));
+                command.Parameters.Add(new SqlParameter("@idSpecies", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+    public static void QueyInsertFilmStarships(List<Film> films, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.FilmStarships 
+                VALUES(@idFilm,
+                @idStarship);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var film in films)
+        {
+            foreach (string starship in film.starships)
+            {
+                Match match = Regex.Match(starship, pattern);
+                command.Parameters.Add(new SqlParameter("@idFilm", film.id));
+                command.Parameters.Add(new SqlParameter("@idStarship", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+    public static void QueyInsertFilmVehicles(List<Film> films, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.FilmVehicles 
+                VALUES(@idFilm,
+                @idVehicle);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var film in films)
+        {
+            foreach (string vehicle in film.vehicles)
+            {
+                Match match = Regex.Match(vehicle, pattern);
+                command.Parameters.Add(new SqlParameter("@idFilm", film.id));
+                command.Parameters.Add(new SqlParameter("@idVehicle", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+    public static void QueyInsertSpecieCharacters(List<Specie> species, SqlConnection connection)
+    {
+        var query = @"INSERT INTO dbo.SpecieCharacters 
+                VALUES(@idSpecie,
+                @idCharacter);";
+
+        using var command = new SqlCommand(query, connection);
+        connection.Open();
+        foreach (var specie in species)
+        {
+            foreach (string character in specie.people)
+            {
+                Match match = Regex.Match(character, pattern);
+                command.Parameters.Add(new SqlParameter("@idSpecie", specie.id));
+                command.Parameters.Add(new SqlParameter("@idCharacter", int.Parse(match.Groups[1].Value)));
+                command.ExecuteNonQuery();
+                command.Parameters.Clear();
+            }
+        };
+        connection.Close();
+    }
+
+
 }
 

@@ -20,7 +20,7 @@ Querys.QueryInsertPlanet(planets, connection);
 
 jsonFile = "StarWarsFilms.json"; 
 jsonString = File.ReadAllText(path+jsonFile);
-var films = JsonSerializer.Deserialize<List<Film>>(jsonString);
+var films = JsonSerializer.Deserialize<List<Film>>(jsonString); 
 
 Querys.QueryInsertFilms(films, connection);
 
@@ -47,6 +47,17 @@ jsonString = File.ReadAllText(path+jsonFile);
 var starships = JsonSerializer.Deserialize<List<Starship>>(jsonString);
 
 Querys.QueryInsertStarships(starships, connection);
+
+Querys.QueyInsertFilmCharaters(films, connection);
+Querys.QueyInsertFilmPlanets(films, connection);
+Querys.QueyInsertFilmSpecies(films, connection);
+Querys.QueyInsertFilmStarships(films, connection);
+Querys.QueyInsertFilmVehicles(films, connection);
+
+Querys.QueyInsertCharacterStarships(characters, connection);
+Querys.QueyInsertCharacterVehicles(characters, connection);
+
+Querys.QueyInsertSpecieCharacters(species, connection);
 
 stopwatch.Stop();
 Console.WriteLine($"Tempo passado: {stopwatch.Elapsed}");
